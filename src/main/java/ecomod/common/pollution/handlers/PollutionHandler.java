@@ -792,7 +792,7 @@ public class PollutionHandler implements IPollutionGetter
 						
 						if(inSmog && PollutionUtils.hasSurfaceAccess(world, bp))
 						{
-							if(!PollutionUtils.isEntityRespirating(entity))
+							if(!PollutionUtils.isEntityRespirating(entity) && EMConfig.potion_effects_from_smog)
 							{
 								((EntityPlayer)entity).addStat(EMAchievements.ACHS.get("smog"), 1);
 								

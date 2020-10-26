@@ -108,6 +108,8 @@ public class EMConfig
 	public static boolean enable_sponge_recipe = true;
 	
 	public static boolean pollution_effects_books_gen = true;
+
+	public static boolean potion_effects_from_smog = true;
 	
 	public static void sync()
 	{
@@ -225,6 +227,8 @@ public class EMConfig
 			}
 			
 			eu_to_rf_conversion = config.getFloat("eu_to_rf_conversion", "TILES", 4F, 0, Float.MAX_VALUE, "Industrial Craft EU to RF conversion ratio for machine powering(1 rf = k EU). If the value is zero, machines won't accept EU.");
+			potion_effects_from_smog = config.getBoolean("potion_effects_from_smog", "Pollution", potion_effects_from_smog, "True = Players get potion effects without a respirator, False = Smog is only visual");
+			
 		}
 		catch(Exception e)
 		{

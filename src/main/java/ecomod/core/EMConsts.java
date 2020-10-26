@@ -16,7 +16,7 @@ public class EMConsts
 	 * 
 	 */
 	public static final String mcversion = "1.7.10";
-	public static final String version = mcversion + "-1.5.0.0";
+	public static final String version = mcversion + "-1.5.0.99";
 	
 	public static final String deps = "";
 	
