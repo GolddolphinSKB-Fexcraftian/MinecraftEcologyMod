@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
 FMLCorePlugin: ecomod.asm.EcomodLoadingPlugin
 FMLCorePluginContainsFMLMod: true
+FMLAT: "ecomod_at.cfg"
 Created-By: 1.7.0 (Oracle Corporation)

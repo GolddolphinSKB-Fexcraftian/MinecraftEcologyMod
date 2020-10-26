@@ -24,6 +24,7 @@ archivesBaseName = "ecomod"
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "eclipse"
+    at('src/main/resources/META-INF/ecomod_at.cfg')
 }
 
 configurations {
@@ -87,4 +88,7 @@ processResources
 
 jar {
     from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest {
+	    attributes 'FMLAT': 'ecomod_at.cfg'
+	}
 }
