@@ -26,6 +26,11 @@ minecraft {
     runDir = "eclipse"
 }
 
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
 repositories {
     ivy {
         name "BuildCraft"
@@ -43,11 +48,15 @@ repositories {
         name "Mobius Repo"
         url "http://mobiusstrip.eu/maven"
     }
+
+    maven {
+        url = "https://repo.erins.net/maven"
+    }
     
 }
 
 dependencies {
-    compile name: "buildcraft", version: "7.0.7", classifier: "dev"
+    embed name: "buildcraft", version: "7.0.7", classifier: "api"
     compile 'net.industrial-craft:industrialcraft-2:2.2.792:dev'
     compile "li.cil.oc:OpenComputers:MC1.7.10-1.5.+:api"
     compile "codechicken:NotEnoughItems:1.7.10-1.0.5.120:dev"
@@ -74,4 +83,8 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+jar {
+    from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
 }
