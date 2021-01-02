@@ -37,4 +37,8 @@ public class TileFilter extends TileEnergy implements IPollutionAffector{
 		
 		return emission;
 	}
+
+	public boolean hasEnoughEnergy(int x, int y, int z) {
+		return energy.getEnergyStored() >= (int) (EMConfig.filter_energy_per_emission);
+	}
 }

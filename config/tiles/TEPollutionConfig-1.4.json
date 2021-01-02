@@ -1,7 +1,6 @@
 {
   "version": "1.4",
   "config": [
-   //Minecraft Furnace is a reference
     {
       "id": "minecraft:furnace",
       "emission": {

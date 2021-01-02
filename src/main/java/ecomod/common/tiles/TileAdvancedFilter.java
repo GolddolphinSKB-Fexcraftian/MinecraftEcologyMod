@@ -138,23 +138,33 @@ public class TileAdvancedFilter extends TileEnergy implements IFluidHandler, IHa
 	{
 		boolean ret = true;
 		
-		if(!PollutionUtils.hasSurfaceAccess(worldObj, getPos()))
-		{
-			return false;
-		}
+		ret &= canSeeDaylight();
 		
+		if(ret)
 		ret &= worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
 		
 		if(ret)
-		ret &= this.getEnergyStored() >= (EMConfig.advanced_filter_energy_per_second * EMConfig.adv_filter_delay_secs);
+		ret &= hasEnoughEnergy();
 		
 		if(ret)
 		ret &= getProduction() != null;
 		
 		if(ret)
-		ret &= tank.getCapacity() >= getProduction().amount + tank.getFluidAmount();
+		ret &= hasEnoughTankSpace();
 		
 		return ret;
+	}
+
+	public boolean canSeeDaylight() {
+		return PollutionUtils.hasSurfaceAccess(worldObj, getPos());
+	}
+
+	public boolean hasEnoughEnergy() {
+		return this.getEnergyStored() >= (EMConfig.advanced_filter_energy_per_second * EMConfig.adv_filter_delay_secs);
+	}
+
+	public boolean hasEnoughTankSpace() {
+		return tank.getCapacity() >= getProduction().amount + tank.getFluidAmount();
 	}
 	
 	public FluidStack getProduction()

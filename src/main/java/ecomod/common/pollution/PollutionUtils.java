@@ -18,6 +18,9 @@ import ecomod.common.utils.newmc.EMBlockPos;
 import ecomod.core.EMConsts;
 import ecomod.core.stuff.EMIntermod;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDynamicLiquid;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -28,6 +31,30 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.ForgeDirection;
+import ecomod.core.stuff.EMIntermod;
+import cpw.mods.fml.common.Loader;
+
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.IFluidBlock;
+
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityArcFurnace;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityAssembler;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityAssembler.CrafterPatternInventory;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityBlastFurnacePreheater;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityCrusher;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityDieselGenerator;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityExcavator;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityFermenter;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityFurnaceHeater;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityRefinery;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntitySqueezer;
+import blusunrize.immersiveengineering.common.blocks.metal.TileEntityThermoelectricGen;
+import blusunrize.immersiveengineering.common.blocks.stone.TileEntityBlastFurnace;
+import blusunrize.immersiveengineering.common.blocks.stone.TileEntityBlastFurnaceAdvanced;
+import blusunrize.immersiveengineering.common.blocks.stone.TileEntityCokeOven;
+
+import blusunrize.immersiveengineering.api.energy.ThermoelectricHandler;
 
 public class PollutionUtils
 {
@@ -48,8 +75,86 @@ public class PollutionUtils
 		{
 			return ((IHasWork)te).hasWork();
 		}
+
+		if (Loader.isModLoaded("ThermalExpansion") && te instanceof IHasWork) {
+			return ((IHasWork)te).hasWork();
+		}
+
+		if (Loader.isModLoaded("ImmersiveEngineering")) {
+			if (te instanceof TileEntityArcFurnace) {
+				return ((TileEntityArcFurnace)te).active;
+			} else if (te instanceof TileEntityAssembler) {
+				for(int p=0; p<((TileEntityAssembler)te).patterns.length; p++)
+				{
+					CrafterPatternInventory pattern = ((TileEntityAssembler)te).patterns[p];
+					if(pattern.inv[9]!=null && ((TileEntityAssembler)te).canOutput(pattern.inv[9], p))
+						return true;
+				}
+				return false;
+			} else if (te instanceof TileEntityBlastFurnacePreheater) {
+				return ((TileEntityBlastFurnacePreheater)te).active;
+			} else if (te instanceof TileEntityCrusher) {
+				return ((TileEntityCrusher)te).active;
+			} else if (te instanceof TileEntityDieselGenerator) {
+				return ((TileEntityDieselGenerator)te).active;
+			} else if (te instanceof TileEntityExcavator) {
+				return ((TileEntityExcavator)te).active;
+			} else if (te instanceof TileEntityFurnaceHeater) {
+				return ((TileEntityFurnaceHeater)te).active;
+			} else if (te instanceof TileEntityRefinery) {
+				return ((TileEntityRefinery)te).tank2.getFluidAmount() > 0;
+			} else if (te instanceof TileEntityThermoelectricGen) {
+				TileEntityThermoelectricGen ete = (TileEntityThermoelectricGen)te;
+				int energy = 0;
+				for(ForgeDirection fd : new ForgeDirection[]{ForgeDirection.UP,ForgeDirection.SOUTH,ForgeDirection.EAST})
+					if(!w.isAirBlock(te.xCoord+fd.offsetX, te.yCoord+fd.offsetY, te.zCoord+fd.offsetZ) && w.isAirBlock(te.xCoord+fd.getOpposite().offsetX, te.yCoord+fd.getOpposite().offsetY, te.zCoord+fd.getOpposite().offsetZ))
+					{
+						int temp0 = getTemperature(te.xCoord+fd.offsetX, te.yCoord+fd.offsetY, te.zCoord+fd.offsetZ, w);
+						int temp1 = getTemperature(te.xCoord+fd.getOpposite().offsetX, te.yCoord+fd.getOpposite().offsetY, te.zCoord+fd.getOpposite().offsetZ, w);
+						if(temp0>-1&&temp1>-1)
+						{
+							int diff = Math.abs(temp0-temp1);
+							energy += (int) diff;
+						}
+					}
+				return energy > 0;
+
+			} else if (te instanceof TileEntityBlastFurnace) {
+				return ((TileEntityBlastFurnace)te).active;	
+			} else if (te instanceof TileEntityBlastFurnaceAdvanced) {
+				return ((TileEntityBlastFurnaceAdvanced)te).active;
+			} else if (te instanceof TileEntityCokeOven) {
+				return ((TileEntityCokeOven)te).active;
+			}
+
+		}
 		
 		return true;
+	}
+
+	public static int getTemperature(int x, int y, int z, World w)
+	{
+		Fluid f = getFluid(x,y,z, w);
+		if(f!=null)
+			return f.getTemperature(w, x, y, z);
+		return ThermoelectricHandler.getTemperature(w.getBlock(x,y,z), w.getBlockMetadata(x,y,z));
+	}
+	public static Fluid getFluid(int x, int y, int z, World w)
+	{
+		Block b = w.getBlock(x, y, z);
+		Fluid f = FluidRegistry.lookupFluidForBlock(b);
+		if(f==null && b instanceof BlockDynamicLiquid && w.getBlockMetadata(x, y, z)==0)
+			if(b.getMaterial().equals(Material.water))
+				f = FluidRegistry.WATER;
+			else if(b.getMaterial().equals(Material.lava))
+				f = FluidRegistry.LAVA;
+		if(b instanceof IFluidBlock && !((IFluidBlock)b).canDrain(w, x, y, z))
+			return null;
+		if(b instanceof BlockStaticLiquid && w.getBlockMetadata(x, y, z)!=0)
+			return null;
+		if(f==null)
+			return null;
+		return f;
 	}
 	
 	public static PollutionData pollutionMaxFrom(PollutionData a, PollutionData b)

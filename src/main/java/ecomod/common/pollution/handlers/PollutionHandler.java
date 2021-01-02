@@ -789,18 +789,19 @@ public class PollutionHandler implements IPollutionGetter
 						EMBlockPos bp = new EMBlockPos(entity);
 						
 						boolean inSmog = isEntityInSmog((EntityPlayerMP)entity);
-						
-						if(inSmog && PollutionUtils.hasSurfaceAccess(world, bp))
-						{
-							if(!PollutionUtils.isEntityRespirating(entity) && EMConfig.potion_effects_from_smog)
+						if (EMConfig.potion_effects_from_smog) {
+							if(inSmog && PollutionUtils.hasSurfaceAccess(world, bp))
 							{
-								((EntityPlayer)entity).addStat(EMAchievements.ACHS.get("smog"), 1);
-								
-								((EntityPlayerMP)entity).addPotionEffect(new PotionEffect(Potion.confusion.getId(), 200, 0));
-								((EntityPlayerMP)entity).addPotionEffect(new PotionEffect(Potion.moveSlowdown.getId(), 180, 0));
-								
-								if(getPollution(world, EMUtils.blockPosToPair(bp)).clone().getAirPollution() / EcomodStuff.pollution_effects.get("smog").getTriggerringPollution().getAirPollution()  >= 2)
-									((EntityPlayerMP)entity).addPotionEffect(new PotionEffect(Potion.wither.getId(), 160, 1));
+								if(!PollutionUtils.isEntityRespirating(entity))
+								{
+									((EntityPlayer)entity).addStat(EMAchievements.ACHS.get("smog"), 1);
+									
+									((EntityPlayerMP)entity).addPotionEffect(new PotionEffect(Potion.confusion.getId(), 200, 0));
+									((EntityPlayerMP)entity).addPotionEffect(new PotionEffect(Potion.moveSlowdown.getId(), 180, 0));
+									
+									if(getPollution(world, EMUtils.blockPosToPair(bp)).clone().getAirPollution() / EcomodStuff.pollution_effects.get("smog").getTriggerringPollution().getAirPollution()  >= 2)
+										((EntityPlayerMP)entity).addPotionEffect(new PotionEffect(Potion.wither.getId(), 160, 1));
+								}
 							}
 						}
 					}
